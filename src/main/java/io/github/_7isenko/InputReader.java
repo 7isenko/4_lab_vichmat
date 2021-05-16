@@ -1,5 +1,7 @@
 package io.github._7isenko;
 
+import io.github._7isenko.point.Point;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

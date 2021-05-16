@@ -1,4 +1,4 @@
-package io.github._7isenko;
+package io.github._7isenko.point;
 
 /**
  * @author 7isenko

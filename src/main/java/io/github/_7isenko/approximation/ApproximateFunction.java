@@ -1,8 +1,8 @@
 package io.github._7isenko.approximation;
 
-import io.github._7isenko.Point;
-import io.github._7isenko.PointFunction;
-import io.github._7isenko.PointLogicalFunction;
+import io.github._7isenko.point.Point;
+import io.github._7isenko.point.PointFunction;
+import io.github._7isenko.point.PointLogicalFunction;
 import lombok.Getter;
 
 import java.util.ArrayList;

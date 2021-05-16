@@ -1,7 +1,8 @@
 package io.github._7isenko;
 
 import io.github._7isenko.approximation.*;
-import io.github._7isenko.matrixsolver.DiagonalDominanceException;
+import io.github._7isenko.point.Point;
+import org.knowm.xchart.XYChart;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class Main {
 
 
         File file = files.get(fileNumber - 1);
-        ArrayList<Point> points = InputReader.readPointsFromFile(file);
+        ArrayList<io.github._7isenko.point.Point> points = InputReader.readPointsFromFile(file);
 
         GraphBuilder.drawPoints(points);
 
@@ -90,32 +91,76 @@ public class Main {
 
         try {
             chosenApproximateFunction.calculateCoefficients();
-        } catch (DiagonalDominanceException e) {
-            System.out.println(e.getMessage());
-            System.out.println("Matrix for square approximate function can't be solved");
-            return;
         } catch (ArithmeticException e) {
             System.out.println(e.getMessage());
             return;
         }
 
-        double a, b, c;
-        a = chosenApproximateFunction.getA();
-        b = chosenApproximateFunction.getB();
-        c = chosenApproximateFunction.getC();
+        double a_first, b_first, c_first;
+        a_first = chosenApproximateFunction.getA();
+        b_first = chosenApproximateFunction.getB();
+        c_first = chosenApproximateFunction.getC();
 
         System.out.println("Получены коэффициенты:");
-        if (c == 0) {
-            System.out.printf("a = %f; b = %f\n", a, b);
+        if (c_first == 0) {
+            System.out.printf("a = %f; b = %f\n", a_first, b_first);
             System.out.println("Функция имеет вид:");
-            System.out.printf(strFunc, a, b);
+            System.out.printf(strFunc + "\n", a_first, b_first);
         } else {
-            System.out.printf("a = %f; b = %f; c = %f\n", a, b, c);
-            System.out.printf(strFunc, a, b, c);
+            System.out.printf("a = %f; b = %f; c = %f\n", a_first, b_first, c_first);
+            System.out.println("Функция имеет вид:");
+            System.out.printf(strFunc + "\n", a_first, b_first, c_first);
         }
 
-        GraphBuilder.createFunctionGraphWithPoints(chosenApproximateFunction, points, strFunc);
+        XYChart chart = GraphBuilder.createFunctionGraphWithPoints(chosenApproximateFunction, points);
 
+        io.github._7isenko.point.Point remove = points.get(0);
+        double inac = Math.abs(remove.y - chosenApproximateFunction.solve(remove.x));
+        for (Point point : points) {
+            double y = chosenApproximateFunction.solve(point.x);
+            double in = Math.abs(y - point.y);
+            if (in > inac) {
+                inac = in;
+                remove = point;
+            }
+        }
+
+        System.out.println("Хотите ли вы найти точку с наибольшим отклонением?");
+        if (inputReader.parseYesOrNo()) {
+            System.out.printf("Точка с наибольшим отклонением: x = %f, y = %f\n", remove.x, remove.y);
+            System.out.printf("Отклонение от ожидаемого значения равно %f\n", inac);
+           GraphBuilder.addRedPoint(remove, chart);
+
+            System.out.println("Удалить её?");
+            if (inputReader.parseYesOrNo()) {
+                GraphBuilder.removeRedPoint(chart);
+                points.remove(remove);
+                chosenApproximateFunction.calculateCoefficients();
+                GraphBuilder.addFunctionToGraph(chosenApproximateFunction, points, chart);
+                System.out.println("Точка удалена");
+
+                double a, b, c;
+                a = chosenApproximateFunction.getA();
+                b = chosenApproximateFunction.getB();
+                c = chosenApproximateFunction.getC();
+                System.out.println("Новые значения:");
+                if (c == 0) {
+                    System.out.printf("a = %f; b = %f\n", a, b);
+                    System.out.printf(strFunc + "\n", a, b);
+
+                } else {
+                    System.out.printf("a = %f; b = %f; c = %f\n", a, b, c);
+                    System.out.printf(strFunc + "\n", a, b, c);
+                }
+                System.out.println("Прошлые значения:");
+                if (c_first == 0) {
+                    System.out.printf("a = %f; b = %f\n", a_first, b_first);
+                    System.out.printf(strFunc + "\n", a_first, b_first);
+                } else {
+                    System.out.printf("a = %f; b = %f; c = %f\n", a_first, b_first, c_first);
+                    System.out.printf(strFunc + "\n", a_first, b_first, c_first);
+                }
+            }
+        }
     }
-
 }

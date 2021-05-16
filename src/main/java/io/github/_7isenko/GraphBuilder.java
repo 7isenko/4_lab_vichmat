@@ -1,6 +1,7 @@
 package io.github._7isenko;
 
 import io.github._7isenko.approximation.ApproximateFunction;
+import io.github._7isenko.point.Point;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
@@ -14,53 +15,56 @@ import java.util.List;
  */
 public class GraphBuilder {
 
-    public static void drawPoints(ArrayList<Point> points) {
+    public static SwingWrapper<XYChart> currentWrapper;
+
+    public static void drawPoints(ArrayList<io.github._7isenko.point.Point> points) {
         ArrayList<ArrayList<Double>> split = excludePoints(points);
         ArrayList<Double> xp = split.get(0);
         ArrayList<Double> yp = split.get(1);
 
         XYChart chart = new XYChartBuilder().width(600).height(400).title("Your points").xAxisTitle("x").yAxisTitle("y").build();
-        chart.addSeries("points", xp, yp).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
-        displayChart(chart);
+        chart.addSeries("points", xp, yp).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter).setMarkerColor(Color.GREEN);
+        currentWrapper = new SwingWrapper<>(chart);
+        currentWrapper.displayChart().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     }
 
-    public static void createFunctionGraphWithPoints(ApproximateFunction chosenApproximateFunction, ArrayList<Point> points, String strFunc) {
+    public static void addRedPoint(io.github._7isenko.point.Point point, XYChart chart) {
+        chart.addSeries("bad point", new double[]{point.x}, new double[]{point.y}).setMarkerColor(Color.RED).setMarker(SeriesMarkers.CROSS);
+        currentWrapper.repaintChart();
+    }
+
+    public static void removeRedPoint(XYChart chart) {
+        chart.removeSeries("bad point");
+        currentWrapper.repaintChart();
+    }
+
+    public static void addFunctionToGraph(ApproximateFunction chosenApproximateFunction, ArrayList<io.github._7isenko.point.Point> points, XYChart chart) {
+        ArrayList<ArrayList<Double>> split = excludePoints(points);
+        ArrayList<Double> xp = split.get(0);
+
+        double minx = Collections.min(xp) - 0.5;
+        double maxx = Collections.max(xp) + 0.5;
+
+        createGraph(chart, "approximated once more", chosenApproximateFunction, minx, maxx, XYSeries.XYSeriesRenderStyle.Line, Color.ORANGE);
+        chart.getSeriesMap().get("approximated").setLineColor(Color.GRAY);
+        currentWrapper.repaintChart();
+    }
+
+    public static XYChart createFunctionGraphWithPoints(ApproximateFunction chosenApproximateFunction, ArrayList<io.github._7isenko.point.Point> points) {
         ArrayList<ArrayList<Double>> split = excludePoints(points);
         ArrayList<Double> xp = split.get(0);
         ArrayList<Double> yp = split.get(1);
 
         XYChart chart = new XYChartBuilder().width(600).height(400).title("Your points").xAxisTitle("x").yAxisTitle("y").build();
-        chart.addSeries("points", xp, yp).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
 
-        ArrayList<Double> xl = new ArrayList<>();
         double minx = Collections.min(xp) - 0.5;
         double maxx = Collections.max(xp) + 0.5;
 
         createGraph(chart, "approximated", chosenApproximateFunction, minx, maxx, XYSeries.XYSeriesRenderStyle.Line, Color.BLUE);
+        chart.addSeries("points", xp, yp).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter).setMarkerColor(Color.GREEN);
 
-        displayChart(chart);
-    }
-
-    public static void createIntegralExampleGraph(ApproximateFunction chosenApproximateFunction, String strFunc, double xLeft, double xRight) {
-        if (xLeft > xRight) {
-            double tmp = xLeft;
-            xLeft = xRight;
-            xRight = tmp;
-        }
-        XYChart chart = createFunctionGraphWithPoints(chosenApproximateFunction, strFunc, xLeft - 1, xRight + 1);
-        createGraph(chart, "integral", chosenApproximateFunction, xLeft, xRight, XYSeries.XYSeriesRenderStyle.Area, Color.BLUE);
-    }
-
-    public static XYChart createFunctionGraphWithPoints(ApproximateFunction approximateFunction, String formula, double leftBorder, double rightBorder) {
-        XYChart chart = new XYChartBuilder().width(600).height(400).title(formula).xAxisTitle("x").yAxisTitle("y").build();
-        chart.getStyler().setLegendVisible(false);
-        chart.getStyler().setZoomEnabled(true);
-        createGraph(chart, "y(x)", approximateFunction, leftBorder, rightBorder, XYSeries.XYSeriesRenderStyle.Line, Color.GREEN);
-        // SwingWrapper swingWrapper = new SwingWrapper<>(chart);
-        //  JFrame frame = swingWrapper.displayChart(); // FIXME: моя либа для графиков обожает бросать здесь исключение, причем из другого потока
-        JFrame frame = displayChart(chart);
-        frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        frame.setAlwaysOnTop(true);
+        currentWrapper = new SwingWrapper<>(chart);
+        currentWrapper.displayChart();
         return chart;
     }
 
@@ -117,26 +121,7 @@ public class GraphBuilder {
         }
     }
 
-    private static JFrame displayChart(XYChart chart) {
-        final JFrame frame = new JFrame("Semisenko Max P3232");
-        try {
-            SwingUtilities.invokeLater(() -> {
-                Thread.setDefaultUncaughtExceptionHandler(null);
-
-                JPanel chartPanel = new XChartPanel<>(chart);
-
-                frame.add(chartPanel);
-                frame.pack();
-                frame.setVisible(true);
-            });
-        } catch (Exception e) {
-            // ignore
-        }
-
-        return frame;
-    }
-
-    private static ArrayList<ArrayList<Double>> excludePoints(List<Point> points) {
+    private static ArrayList<ArrayList<Double>> excludePoints(List<io.github._7isenko.point.Point> points) {
         ArrayList<ArrayList<Double>> rez = new ArrayList<>();
         rez.add(new ArrayList<>());
         rez.add(new ArrayList<>());

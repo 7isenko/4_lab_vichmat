@@ -1,6 +1,5 @@
-package io.github._7isenko;
+package io.github._7isenko.point;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 /**

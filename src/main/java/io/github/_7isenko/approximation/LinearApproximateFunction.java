@@ -1,6 +1,6 @@
 package io.github._7isenko.approximation;
 
-import io.github._7isenko.Point;
+import io.github._7isenko.point.Point;
 
 import java.util.ArrayList;
 

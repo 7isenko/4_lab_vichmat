@@ -1,6 +1,6 @@
 package io.github._7isenko.approximation;
 
-import io.github._7isenko.Point;
+import io.github._7isenko.point.Point;
 
 import java.util.ArrayList;
 
@@ -15,10 +15,10 @@ public class HyperboleApproximateFunction extends ApproximateFunction {
 
     @Override
     public void calculateCoefficients() {
-        double sxx = sumByFunc(point -> Math.pow(Math.log(point.x), 2));
-        double sx = sumByFunc(point -> Math.log(point.x));
-        double sy = sumByFunc(point -> Math.log(point.y));
-        double sxy = sumByFunc(point -> point.y * Math.log(point.x));
+        double sxx = sumByFunc(point -> 1 / (point.x * point.x));
+        double sx = sumByFunc(point -> 1 / point.x);
+        double sy = sumByFunc(point -> point.y);
+        double sxy = sumByFunc(point -> (1 / point.x) * point.y);
 
         double d = sxx * size - sx * sx;
         if (d == 0) d += 0.00001;
@@ -31,6 +31,6 @@ public class HyperboleApproximateFunction extends ApproximateFunction {
 
     @Override
     public double solve(double x) {
-        return a * Math.log(x) + b;
+        return a/x + b;
     }
 }
