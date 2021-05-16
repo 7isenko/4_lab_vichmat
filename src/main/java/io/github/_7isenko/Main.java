@@ -5,7 +5,9 @@ import io.github._7isenko.point.Point;
 import org.knowm.xchart.XYChart;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +23,7 @@ public class Main {
     private static final InputReader inputReader = new InputReader();
 
     public static void main(String[] args) {
+        blockErrorStream();
 
         List<File> files;
         try {
@@ -161,6 +164,14 @@ public class Main {
                     System.out.printf(strFunc + "\n", a_first, b_first, c_first);
                 }
             }
+        }
+    }
+
+    private static void blockErrorStream() {
+        try {
+            System.setErr(new PrintStream("errors"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 }
