@@ -6,9 +6,8 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.List;
 
 /**
  * @author 7isenko
@@ -16,7 +15,30 @@ import java.util.NoSuchElementException;
 public class GraphBuilder {
 
     public static void drawPoints(ArrayList<Point> points) {
+        ArrayList<ArrayList<Double>> split = excludePoints(points);
+        ArrayList<Double> xp = split.get(0);
+        ArrayList<Double> yp = split.get(1);
 
+        XYChart chart = new XYChartBuilder().width(600).height(400).title("Your points").xAxisTitle("x").yAxisTitle("y").build();
+        chart.addSeries("points", xp, yp).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+        displayChart(chart);
+    }
+
+    public static void createFunctionGraphWithPoints(ApproximateFunction chosenApproximateFunction, ArrayList<Point> points, String strFunc) {
+        ArrayList<ArrayList<Double>> split = excludePoints(points);
+        ArrayList<Double> xp = split.get(0);
+        ArrayList<Double> yp = split.get(1);
+
+        XYChart chart = new XYChartBuilder().width(600).height(400).title("Your points").xAxisTitle("x").yAxisTitle("y").build();
+        chart.addSeries("points", xp, yp).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+
+        ArrayList<Double> xl = new ArrayList<>();
+        double minx = Collections.min(xp) - 0.5;
+        double maxx = Collections.max(xp) + 0.5;
+
+        createGraph(chart, "approximated", chosenApproximateFunction, minx, maxx, XYSeries.XYSeriesRenderStyle.Line, Color.BLUE);
+
+        displayChart(chart);
     }
 
     public static void createIntegralExampleGraph(ApproximateFunction chosenApproximateFunction, String strFunc, double xLeft, double xRight) {
@@ -25,11 +47,11 @@ public class GraphBuilder {
             xLeft = xRight;
             xRight = tmp;
         }
-        XYChart chart = createExampleGraph(chosenApproximateFunction, strFunc, xLeft - 1, xRight + 1);
+        XYChart chart = createFunctionGraphWithPoints(chosenApproximateFunction, strFunc, xLeft - 1, xRight + 1);
         createGraph(chart, "integral", chosenApproximateFunction, xLeft, xRight, XYSeries.XYSeriesRenderStyle.Area, Color.BLUE);
     }
 
-    public static XYChart createExampleGraph(ApproximateFunction approximateFunction, String formula, double leftBorder, double rightBorder) {
+    public static XYChart createFunctionGraphWithPoints(ApproximateFunction approximateFunction, String formula, double leftBorder, double rightBorder) {
         XYChart chart = new XYChartBuilder().width(600).height(400).title(formula).xAxisTitle("x").yAxisTitle("y").build();
         chart.getStyler().setLegendVisible(false);
         chart.getStyler().setZoomEnabled(true);
@@ -114,4 +136,15 @@ public class GraphBuilder {
         return frame;
     }
 
+    private static ArrayList<ArrayList<Double>> excludePoints(List<Point> points) {
+        ArrayList<ArrayList<Double>> rez = new ArrayList<>();
+        rez.add(new ArrayList<>());
+        rez.add(new ArrayList<>());
+
+        for (Point point : points) {
+            rez.get(0).add(point.x);
+            rez.get(1).add(point.y);
+        }
+        return rez;
+    }
 }

@@ -1,7 +1,6 @@
 package io.github._7isenko.approximation;
 
 import io.github._7isenko.Point;
-import lombok.Getter;
 
 import java.util.ArrayList;
 
@@ -21,6 +20,7 @@ public class LinearApproximateFunction extends ApproximateFunction {
         double sxy = sumByFunc(point -> point.x * point.y);
 
         double d = sxx * size - sx * sx;
+        if (d == 0) d += 0.00001;
         double d1 = sxy * size - sx * sy;
         double d2 = sxx * sy - sx * sxy;
 

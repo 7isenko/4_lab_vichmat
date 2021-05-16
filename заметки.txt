@@ -1,0 +1,3 @@
+linear.txt ___ y = x + 1
+square.txt ___ y = 0.3*x^2 - 3
+exp.txt ______ y = 0.05*e^(0.3*x)
