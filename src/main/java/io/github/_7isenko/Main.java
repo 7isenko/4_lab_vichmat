@@ -115,6 +115,10 @@ public class Main {
             System.out.printf(strFunc + "\n", a_first, b_first, c_first);
         }
 
+        for (Point point : points) {
+            System.out.printf("x=%f, y=%f, f=%f, d=%f\n" , point.x, point.y, chosenApproximateFunction.solve(point.x), Math.abs(chosenApproximateFunction.solve(point.x) - point.y));
+        }
+
         XYChart chart = GraphBuilder.createFunctionGraphWithPoints(chosenApproximateFunction, points);
 
         io.github._7isenko.point.Point remove = points.get(0);
